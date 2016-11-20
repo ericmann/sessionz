@@ -1,7 +1,15 @@
 <?php
-namespace EAMann\Sessionz;
+namespace EAMann\Sessionz\Handlers;
 
-interface Handler {
+use EAMann\Sessionz\Handler;
+
+/**
+ * This is not a handler meant to be invoked directly, but instead used as a template
+ * for other handlers that may or may not need to explicitly implement various methods.
+ * Instead, these methods will fall through to the next item in the stack directly.
+ */
+abstract class NoopHandler implements Handler {
+
     /**
      * Delete a session from storage by ID.
      *
@@ -10,7 +18,10 @@ interface Handler {
      *
      * @return bool
      */
-    function delete($id, $next);
+    public function delete($id, $next)
+    {
+        return $next();
+    }
 
     /**
      * Clean up all session older than the max lifetime specified.
@@ -20,7 +31,10 @@ interface Handler {
      *
      * @return bool
      */
-    function clean($maxlifetime, $next);
+    public function clean($maxlifetime, $next)
+    {
+        return $next();
+    }
 
     /**
      * Create a new session store.
@@ -31,7 +45,10 @@ interface Handler {
      *
      * @return bool
      */
-    function create($path, $name, $next);
+    public function create($path, $name, $next)
+    {
+        return $next();
+    }
 
     /**
      * Read a specific session from storage.
@@ -41,7 +58,10 @@ interface Handler {
      *
      * @return string
      */
-    function read($id, $next);
+    public function read($id, $next)
+    {
+        return $next();
+    }
 
     /**
      * Write session data to storage.
@@ -52,5 +72,8 @@ interface Handler {
      *
      * @return bool
      */
-    function write($id, $data, $next);
+    public function write($id, $data, $next)
+    {
+        return $next();
+    }
 }

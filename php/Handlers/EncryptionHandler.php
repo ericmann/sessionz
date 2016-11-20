@@ -3,65 +3,32 @@ namespace EAMann\Sessionz\Handlers;
 
 use EAMann\Sessionz\Handler;
 
-class MemcacheHandler extends Handler {
+class MemcacheHandler extends NoopHandler  {
 
     /**
-     * Noop function for closing a session.
+     * Read all data from farther down the stack (i.e. earlier-added handlers)
+     * and then decrypt the data given specified keys.
      *
-     * @param callable $next
+     * @param string   $id   ID of the session to read
+     * @param callable $next Callable to invoke the next layer in the stack
      *
-     * @return bool
+     * @return string
      */
-    public function close($next)
-    {
-        return $next();
-    }
-
-    /**
-     * Noop function for destroying a session.
-     *
-     * @param string   $id
-     * @param callable $next
-     *
-     * @return bool
-     */
-    public function destroy($id, $next)
-    {
-        return $next( $id );
-    }
-
-    /**
-     * Noop function for cleaning up expired sessions.
-     *
-     * @param int      $maxlifetime
-     * @param callable $next
-     *
-     * @return bool
-     */
-    public function gc($maxlifetime, $next)
-    {
-        return $next( $maxlifetime );
-    }
-
-    /**
-     * Noop function for creating a session.
-     *
-     * @param string   $path
-     * @param string   $name
-     * @param callable $next
-     *
-     * @return bool
-     */
-    public function open($path, $name, $next)
-    {
-        return $next( $path, $name );
-    }
-
     public function read($id, $next)
     {
         // TODO: Implement read() method.
     }
 
+    /**
+     * Encrypt the incoming data payload, then pass it along to the next handler
+     * in the stack.
+     *
+     * @param string   $id   ID of the session to write
+     * @param string   $data Data to be written
+     * @param callable $next Callable to invoke the next layer in the stack
+     *
+     * @return bool
+     */
     public function write($id, $data, $next)
     {
         // TODO: Implement write() method.

@@ -3,23 +3,14 @@ namespace EAMann\Sessionz\Handlers;
 
 use EAMann\Sessionz\Handler;
 
-class MemoryHandler extends Handler {
-
-    /**
-     * @param callable $next
-     * @return mixed
-     */
-    public function close($next)
-    {
-        // TODO: Implement close() method.
-    }
+class MemoryHandler implements Handler {
 
     /**
      * @param string $id
      * @param callable $next
      * @return mixed
      */
-    public function destroy($id, $next)
+    public function delete($id, $next)
     {
         // TODO: Implement destroy() method.
     }
@@ -29,7 +20,7 @@ class MemoryHandler extends Handler {
      * @param callable $next
      * @return mixed
      */
-    public function gc($maxlifetime, $next)
+    public function clean($maxlifetime, $next)
     {
         // TODO: Implement gc() method.
     }
@@ -40,7 +31,7 @@ class MemoryHandler extends Handler {
      * @param callable $next
      * @return mixed
      */
-    public function open($path, $name, $next)
+    public function create($path, $name, $next)
     {
         // TODO: Implement open() method.
     }

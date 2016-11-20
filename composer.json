@@ -11,6 +11,11 @@
         }
     ],
     "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "EAMann\\Sessionz": "php/"
+        }
+    },
     "require": {
         "php": ">=5.6.28"
     },
