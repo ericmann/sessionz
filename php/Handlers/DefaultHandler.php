@@ -22,14 +22,6 @@ class DefaultHandler implements Handler {
     }
 
     /**
-     * Trigger the closure of the session when disposing of the object
-     */
-    public function __destruct()
-    {
-        $this->handler->close();
-    }
-
-    /**
      * Delete a session from storage by ID.
      *
      * @param string   $id   ID of the session to remove
@@ -39,8 +31,8 @@ class DefaultHandler implements Handler {
      */
     public function delete($id, $next)
     {
-        $this->handler->destroy($id);
-        return $next($id);
+        $status = $this->handler->destroy($id);
+        return $next($id) && $status;
     }
 
     /**
@@ -53,8 +45,8 @@ class DefaultHandler implements Handler {
      */
     public function clean($maxlifetime, $next)
     {
-        $this->handler->gc($maxlifetime);
-        return $next($maxlifetime);
+        $status = $this->handler->gc($maxlifetime);
+        return $next($maxlifetime) && $status;
     }
 
     /**
@@ -68,8 +60,8 @@ class DefaultHandler implements Handler {
      */
     public function create($path, $name, $next)
     {
-        $this->handler->open($path, $name);
-        return $next($path, $name);
+        $status = $this->handler->open($path, $name);
+        return $next($path, $name) && $status;
     }
 
     /**
@@ -96,7 +88,7 @@ class DefaultHandler implements Handler {
      */
     public function write($id, $data, $next)
     {
-        $this->handler->write($id, $data);
+        $this->handler->write($id, $data);die;
         return $next($id, $data);
     }
 }
