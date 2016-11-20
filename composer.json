@@ -13,7 +13,7 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-            "EAMann\\Sessionz": "php/"
+            "EAMann\\Sessionz\\": "php/"
         }
     },
     "require": {
