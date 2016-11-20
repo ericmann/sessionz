@@ -23,7 +23,7 @@ class BaseHandler implements Handler {
      *
      * @return bool
      */
-    public function delete($id, $next)
+    public function delete($id, $next = null)
     {
         return true;
     }
@@ -36,7 +36,7 @@ class BaseHandler implements Handler {
      *
      * @return bool
      */
-    public function clean($maxlifetime, $next)
+    public function clean($maxlifetime, $next = null)
     {
         return true;
     }
@@ -50,7 +50,7 @@ class BaseHandler implements Handler {
      *
      * @return bool
      */
-    public function create($path, $name, $next)
+    public function create($path, $name, $next = null)
     {
         return true;
     }
@@ -63,7 +63,7 @@ class BaseHandler implements Handler {
      *
      * @return string
      */
-    public function read($id, $next)
+    public function read($id, $next = null)
     {
         return '';
     }
@@ -77,7 +77,7 @@ class BaseHandler implements Handler {
      *
      * @return bool
      */
-    public function write($id, $data, $next)
+    public function write($id, $data, $next = null)
     {
         return true;
     }

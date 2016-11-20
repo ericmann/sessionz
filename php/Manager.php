@@ -7,11 +7,34 @@ class Manager implements \SessionHandlerInterface {
     protected static $manager;
 
     /**
-     * Session handler call stack
-     *
+     * @var array
+     */
+    protected $handlers;
+
+    /**
      * @var \SplStack
      */
-    protected $stack;
+    protected $delete_stack;
+
+    /**
+     * @var \SplStack
+     */
+    protected $clean_stack;
+
+    /**
+     * @var \SplStack
+     */
+    protected $create_stack;
+
+    /**
+     * @var \SplStack
+     */
+    protected $read_stack;
+
+    /**
+     * @var \SplStack
+     */
+    protected $write_stack;
 
     /**
      * Handler stack lock
@@ -37,14 +60,38 @@ class Manager implements \SessionHandlerInterface {
         if ($this->handlerLock) {
             throw new \RuntimeException('Session handlers can’t be added once the stack is dequeuing');
         }
-        if (is_null($this->stack)) {
+        if (is_null($this->handlers)) {
             $this->seedHandlerStack();
         }
 
-        $next = $this->stack->top();
-        $this->stack[] = function ($method, $args) use ($handler, $next) {
-            array_push( $args, $next );
-            return call_user_func_array( array( $handler, $method ), $args );
+        // DELETE
+        $next_delete = $this->delete_stack->top();
+        $this->delete_stack[] = function($session_id) use ($handler, $next_delete) {
+            return call_user_func(array( $handler, 'delete'), $session_id, $next_delete);
+        };
+
+        // CLEAN
+        $next_clean = $this->clean_stack->top();
+        $this->clean_stack[] = function($lifetime) use ($handler, $next_clean) {
+            return call_user_func(array( $handler, 'clean'), $lifetime, $next_clean);
+        };
+
+        // CREATE
+        $next_create = $this->create_stack->top();
+        $this->create_stack[] = function($path, $name) use ($handler, $next_create) {
+            return call_user_func(array( $handler, 'create'), $path, $name, $next_create);
+        };
+
+        // READ
+        $next_read = $this->read_stack->top();
+        $this->read_stack[] = function($session_id) use ($handler, $next_read) {
+            return call_user_func(array( $handler, 'read'), $session_id, $next_read);
+        };
+
+        // WRITE
+        $next_write = $this->write_stack->top();
+        $this->write_stack[] = function($session_id, $session_data) use ($handler, $next_write) {
+            return call_user_func(array( $handler, 'write'), $session_id, $session_data, $next_write);
         };
 
         return $this;
@@ -53,23 +100,34 @@ class Manager implements \SessionHandlerInterface {
     /**
      * Seed handler stack with first callable
      *
-     * @param callable $kernel The last item to run as a session handler
-     *
      * @throws \RuntimeException if the stack is seeded more than once
      */
-    protected function seedHandlerStack($kernel = null)
+    protected function seedHandlerStack()
     {
-        if (!is_null($this->stack)) {
-            throw new \RuntimeException('HandlerStack can only be seeded once.');
+        if (!is_null($this->handlers)) {
+            throw new \RuntimeException('Handler stacks can only be seeded once.');
         }
-        if ($kernel === null) {
-            $kernel = $this;
-        }
-        $this->stack = new \SplStack;
-        $this->stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
-        $this->stack[] = $kernel;
+        $base = new BaseHandler();
 
-        $this->addHandler(new BaseHandler());
+        $this->delete_stack = new \SplStack;
+        $this->clean_stack = new \SplStack;
+        $this->create_stack = new \SplStack;
+        $this->read_stack = new \SplStack;
+        $this->write_stack = new \SplStack;
+        $this->handlers = [];
+
+        $this->delete_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
+        $this->clean_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
+        $this->create_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
+        $this->read_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
+        $this->write_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
+
+        $this->delete_stack[] = array( $base, 'delete' );
+        $this->clean_stack[] = array( $base, 'clean' );
+        $this->create_stack[] = array( $base, 'create' );
+        $this->read_stack[] = array( $base, 'read' );
+        $this->write_stack[] = array( $base, 'write' );
+        $this->handlers[] = $base;
     }
 
     /**
@@ -91,30 +149,6 @@ class Manager implements \SessionHandlerInterface {
     }
 
     /**
-     * Generate a function that can invoke a specific action by name, automatically
-     * passing in an array of arguments.
-     *
-     * @param string $action Action to invoke
-     *
-     * @return \Closure
-     */
-    protected function do_action( $action )
-    {
-        return function() use ($action) {
-            if (is_null($this->stack)) {
-                $this->seedHandlerStack();
-            }
-
-            /** @var callable $start */
-            $start = $this->stack->top();
-            $this->handlerLock = true;
-            $data = $start($action, func_get_args());
-            $this->handlerLock = false;
-            return $data;
-        };
-    }
-
-    /**
      * Close the current session.
      *
      * Will iterate through all handlers registered to the manager and
@@ -127,7 +161,16 @@ class Manager implements \SessionHandlerInterface {
     public function close()
     {
         $this->handlerLock = true;
-        $this->stack->pop();
+
+        while (count($this->handlers) > 0) {
+            array_pop($this->handlers);
+            $this->delete_stack->pop();
+            $this->clean_stack->pop();
+            $this->create_stack->pop();
+            $this->read_stack->pop();
+            $this->write_stack->pop();
+        }
+
         $this->handlerLock = false;
         return true;
     }
@@ -142,7 +185,16 @@ class Manager implements \SessionHandlerInterface {
      */
     public function destroy($session_id)
     {
-        return ($this->do_action('delete'))($session_id);
+        if (is_null($this->handlers)) {
+            $this->seedHandlerStack();
+        }
+
+        /** @var callable $start */
+        $start = $this->delete_stack->top();
+        $this->handlerLock = true;
+        $data = $start($session_id);
+        $this->handlerLock = false;
+        return $data;
     }
 
     /**
@@ -155,7 +207,16 @@ class Manager implements \SessionHandlerInterface {
      */
     public function gc($maxlifetime)
     {
-        return ($this->do_action('clean'))($maxlifetime);
+        if (is_null($this->handlers)) {
+            $this->seedHandlerStack();
+        }
+
+        /** @var callable $start */
+        $start = $this->clean_stack->top();
+        $this->handlerLock = true;
+        $data = $start($maxlifetime);
+        $this->handlerLock = false;
+        return $data;
     }
 
     /**
@@ -168,7 +229,16 @@ class Manager implements \SessionHandlerInterface {
      */
     public function open($save_path, $name)
     {
-        return ($this->do_action('create'))($save_path, $name);
+        if (is_null($this->handlers)) {
+            $this->seedHandlerStack();
+        }
+
+        /** @var callable $start */
+        $start = $this->create_stack->top();
+        $this->handlerLock = true;
+        $data = $start($save_path, $name);
+        $this->handlerLock = false;
+        return $data;
     }
 
     /**
@@ -180,7 +250,16 @@ class Manager implements \SessionHandlerInterface {
      */
     public function read($session_id)
     {
-        return ($this->do_action('read'))($session_id);
+        if (is_null($this->handlers)) {
+            $this->seedHandlerStack();
+        }
+
+        /** @var callable $start */
+        $start = $this->read_stack->top();
+        $this->handlerLock = true;
+        $data = $start($session_id);
+        $this->handlerLock = false;
+        return $data;
     }
 
     /**
@@ -193,6 +272,15 @@ class Manager implements \SessionHandlerInterface {
      */
     public function write($session_id, $session_data)
     {
-        return ($this->do_action('write'))($session_id, $session_data);
+        if (is_null($this->handlers)) {
+            $this->seedHandlerStack();
+        }
+
+        /** @var callable $start */
+        $start = $this->write_stack->top();
+        $this->handlerLock = true;
+        $data = $start($session_id, $session_data);
+        $this->handlerLock = false;
+        return $data;
     }
 }
