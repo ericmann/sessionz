@@ -20,7 +20,7 @@ abstract class NoopHandler implements Handler {
      */
     public function delete($id, $next)
     {
-        return $next();
+        return $next($id);
     }
 
     /**
@@ -33,7 +33,7 @@ abstract class NoopHandler implements Handler {
      */
     public function clean($maxlifetime, $next)
     {
-        return $next();
+        return $next($maxlifetime);
     }
 
     /**
@@ -47,7 +47,7 @@ abstract class NoopHandler implements Handler {
      */
     public function create($path, $name, $next)
     {
-        return $next();
+        return $next($path, $name);
     }
 
     /**
@@ -60,7 +60,7 @@ abstract class NoopHandler implements Handler {
      */
     public function read($id, $next)
     {
-        return $next();
+        return $next($id);
     }
 
     /**
@@ -74,6 +74,6 @@ abstract class NoopHandler implements Handler {
      */
     public function write($id, $data, $next)
     {
-        return $next();
+        return $next($id, $data);
     }
 }

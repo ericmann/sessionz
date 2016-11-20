@@ -40,7 +40,7 @@ class DefaultHandler implements Handler {
     public function delete($id, $next)
     {
         $this->handler->destroy($id);
-        return $next();
+        return $next($id);
     }
 
     /**
@@ -54,7 +54,7 @@ class DefaultHandler implements Handler {
     public function clean($maxlifetime, $next)
     {
         $this->handler->gc($maxlifetime);
-        return $next();
+        return $next($maxlifetime);
     }
 
     /**
@@ -69,7 +69,7 @@ class DefaultHandler implements Handler {
     public function create($path, $name, $next)
     {
         $this->handler->open($path, $name);
-        return $next();
+        return $next($path, $name);
     }
 
     /**
@@ -82,7 +82,7 @@ class DefaultHandler implements Handler {
      */
     public function read($id, $next)
     {
-        return empty($this->handler->read($id)) ? $next() : $this->handler->read($id);
+        return empty($this->handler->read($id)) ? $next($id) : $this->handler->read($id);
     }
 
     /**
@@ -97,6 +97,6 @@ class DefaultHandler implements Handler {
     public function write($id, $data, $next)
     {
         $this->handler->write($id, $data);
-        return $next();
+        return $next($id, $data);
     }
 }
