@@ -21,6 +21,11 @@ class DefaultHandler implements Handler {
         $this->handler = new \SessionHandler();
     }
 
+    public function __destruct()
+    {
+        @$this->handler->close();
+    }
+
     /**
      * Delete a session from storage by ID.
      *
