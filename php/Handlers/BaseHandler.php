@@ -1,4 +1,17 @@
 <?php
+/**
+ * Base handler for reliable session returns
+ *
+ * Define a basic handler implementation that returns standard data types,
+ * assuming success of the underlying mechanism. These returns are the defaults
+ * that should be present if no other handlers are invoked. This handler should
+ * always be added to the management stack.
+ *
+ * @package Sessionz
+ * @subpackage Handlers
+ * @since 1.0.0
+ */
+
 namespace EAMann\Sessionz\Handlers;
 
 use EAMann\Sessionz\Handler;

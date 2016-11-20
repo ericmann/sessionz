@@ -1,6 +1,24 @@
 <?php
+/**
+ * Encryption Middleware
+ *
+ * Allow or sessions to be encrypted at rest by wrapping all reads/writes with
+ * an openssl-powered layer of encryption. A passkey must be supplied when the
+ * handler is instantiated and will be normalized and used for all data storage.
+ *
+ * @package Sessionz
+ * @subpackage Handlers
+ * @since 1.0.0
+ */
+
 namespace EAMann\Sessionz\Handlers;
 
+/**
+ * Extend the standard "noop" handler so that normal functionality for managing
+ * sessions passes through unchanged to other layers in the stack. However, be sure
+ * to intercept all reads/writes to transparently decrypt/encrypt data as it
+ * passes between various storage handlers and the application itself.
+ */
 class EncryptionHandler extends NoopHandler  {
 
     private $key;

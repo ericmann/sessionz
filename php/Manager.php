@@ -1,8 +1,22 @@
 <?php
+/**
+ * Session Manager
+ *
+ * Configure the global mechanism that will manage all handler stacks
+ * and route requests to/from the storage implementations as needed.
+ *
+ * @package Sessionz
+ * @since 1.0.0
+ */
 namespace EAMann\Sessionz;
 
 use EAMann\Sessionz\Handlers\BaseHandler;
 
+/**
+ * Implement PHP's native session handling in such a way as to pass requests
+ * for information through a multi-layered stack of potential handlers in
+ * a fashion similar to request middleware.
+ */
 class Manager implements \SessionHandlerInterface {
     protected static $manager;
 

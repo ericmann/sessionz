@@ -1,4 +1,13 @@
 <?php
+/**
+ * Abstract Passthru Session Handler
+ *
+ * Do nothing ... just pass the request on to the next handler in the stack.
+ *
+ * @package Sessionz
+ * @subpackage Handlers
+ * @since 1.0.0
+ */
 namespace EAMann\Sessionz\Handlers;
 
 use EAMann\Sessionz\Handler;

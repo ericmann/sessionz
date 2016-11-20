@@ -1,4 +1,12 @@
 <?php
+/**
+ * Handler Interface
+ *
+ * Define the contract to which all handlers must subscribe.
+ *
+ * @package Sessionz
+ * @since 1.0.0
+ */
 namespace EAMann\Sessionz;
 
 interface Handler {

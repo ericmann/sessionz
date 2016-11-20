@@ -1,4 +1,16 @@
 <?php
+/**
+ * Native PHP Session Handler
+ *
+ * Fall back to the native, filesystem-backed session implementation that ships
+ * with PHP by instantiating a \SessionHandler object and passing data to/from
+ * that object in the stack.
+ *
+ * @package Sessionz
+ * @subpackage Handlers
+ * @since 1.0.0
+ */
+
 namespace EAMann\Sessionz\Handlers;
 
 use EAMann\Sessionz\Handler;
