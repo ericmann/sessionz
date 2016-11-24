@@ -15,8 +15,8 @@ namespace EAMann\Sessionz\Objects;
  * Class MemoryItem
  * @package EAMann\Sessionz\Handlers
  *
- * @property-read string $data    Data enclosed by the item
- * @property-read int    $expires Expiration timestamp of the data enclosed
+ * @property-read string $data Data enclosed by the item
+ * @property-read int    $time Timestamp when the item was created
  */
 class MemoryItem {
     /**
@@ -47,6 +47,19 @@ class MemoryItem {
         $field_name = "_$field";
 
         return isset($this->$field_name) ? $this->$field_name : null;
+    }
+
+    /**
+     * Throw an exception when anyone tries to write anything.
+     *
+     * @param string $field
+     * @param mixed  $value
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function __set($field, $value)
+    {
+        throw new \InvalidArgumentException("Field `$field` is read-only!");
     }
 
     /**
