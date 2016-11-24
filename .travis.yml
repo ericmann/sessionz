@@ -16,5 +16,10 @@ before_script:
 after_script:
   - php vendor/bin/coveralls -v
 
+
 script:
-    - ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+  - mkdir -p build/logs
+  - ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+
+after_success:
+  - travis_retry php vendor/bin/coveralls
