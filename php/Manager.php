@@ -26,29 +26,9 @@ class Manager implements \SessionHandlerInterface {
     protected $handlers;
 
     /**
-     * @var \SplStack
+     * @var array
      */
-    protected $delete_stack;
-
-    /**
-     * @var \SplStack
-     */
-    protected $clean_stack;
-
-    /**
-     * @var \SplStack
-     */
-    protected $create_stack;
-
-    /**
-     * @var \SplStack
-     */
-    protected $read_stack;
-
-    /**
-     * @var \SplStack
-     */
-    protected $write_stack;
+    protected $stacks;
 
     /**
      * Handler stack lock
@@ -121,27 +101,20 @@ class Manager implements \SessionHandlerInterface {
         if (!is_null($this->handlers)) {
             throw new \RuntimeException('Handler stacks can only be seeded once.');
         }
+        $this->stacks = [];
+        $this->handlers = [$base];
         $base = new BaseHandler();
 
-        $this->delete_stack = new \SplStack;
-        $this->clean_stack = new \SplStack;
-        $this->create_stack = new \SplStack;
-        $this->read_stack = new \SplStack;
-        $this->write_stack = new \SplStack;
-        $this->handlers = [];
+        $this->stacks['delete'] = new \SplStack();
+        $this->stacks['clean'] = new \SplStack();
+        $this->stacks['create'] = new \SplStack();
+        $this->stacks['read'] = new \SplStack();
+        $this->stacks['write'] = new \SplStack();
 
-        $this->delete_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
-        $this->clean_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
-        $this->create_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
-        $this->read_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
-        $this->write_stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
-
-        $this->delete_stack[] = array( $base, 'delete' );
-        $this->clean_stack[] = array( $base, 'clean' );
-        $this->create_stack[] = array( $base, 'create' );
-        $this->read_stack[] = array( $base, 'read' );
-        $this->write_stack[] = array( $base, 'write' );
-        $this->handlers[] = $base;
+        foreach($this->stacks as $id => $stack) {
+            $stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
+            $stack[] = array( $base, $id );
+        }
     }
 
     /**
@@ -204,7 +177,7 @@ class Manager implements \SessionHandlerInterface {
         }
 
         /** @var callable $start */
-        $start = $this->delete_stack->top();
+        $start = $this->stacks['delete']->top();
         $this->handlerLock = true;
         $data = $start($session_id);
         $this->handlerLock = false;
@@ -226,7 +199,7 @@ class Manager implements \SessionHandlerInterface {
         }
 
         /** @var callable $start */
-        $start = $this->clean_stack->top();
+        $start = $this->stacks['clean']->top();
         $this->handlerLock = true;
         $data = $start($maxlifetime);
         $this->handlerLock = false;
@@ -248,7 +221,7 @@ class Manager implements \SessionHandlerInterface {
         }
 
         /** @var callable $start */
-        $start = $this->create_stack->top();
+        $start = $this->stacks['create']->top();
         $this->handlerLock = true;
         $data = $start($save_path, $name);
         $this->handlerLock = false;
@@ -269,7 +242,7 @@ class Manager implements \SessionHandlerInterface {
         }
 
         /** @var callable $start */
-        $start = $this->read_stack->top();
+        $start = $this->stacks['read']->top();
         $this->handlerLock = true;
         $data = $start($session_id);
         $this->handlerLock = false;
@@ -291,7 +264,7 @@ class Manager implements \SessionHandlerInterface {
         }
 
         /** @var callable $start */
-        $start = $this->write_stack->top();
+        $start = $this->stacks['write']->top();
         $this->handlerLock = true;
         $data = $start($session_id, $session_data);
         $this->handlerLock = false;
