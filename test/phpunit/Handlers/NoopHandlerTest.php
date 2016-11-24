@@ -1,7 +1,6 @@
 <?php
 namespace EAMann\Sessionz\Handlers;
 
-use EAMann\Sessionz\Handler;
 use PHPUnit\Framework\TestCase;
 
 /**

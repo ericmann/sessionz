@@ -75,6 +75,8 @@ class MemoryHandler implements Handler {
      * @param int      $maxlifetime
      * @param callable $next
      *
+     * @codeCoverageIgnore Due to timestamp issues, this is currently untestable ...
+     *
      * @return mixed
      */
     public function clean($maxlifetime, $next)
