@@ -12,6 +12,7 @@
 namespace EAMann\Sessionz\Handlers;
 
 use EAMann\Sessionz\Handler;
+use EAMann\Sessionz\Objects\MemoryItem;
 
 /**
  * Use an associative array to store session data so we can cut down on
@@ -21,54 +22,123 @@ use EAMann\Sessionz\Handler;
 class MemoryHandler implements Handler {
 
     /**
+     * @var array
+     */
+    protected $cache;
+
+    /**
+     * Get an item from the cache if it's still valid, otherwise exire it
+     * and return false.
+     *
      * @param string $id
+     *
+     * @return bool|string
+     */
+    protected function _read($id)
+    {
+        if (isset($this->cache[$id])) {
+            /** @var MemoryItem $item */
+            $item = $this->cache[$id];
+            if (!$item->is_valid()) {
+                unset($this->cache[$id]);
+                return false;
+            }
+
+            return $item->data;
+        }
+
+        return false;
+    }
+
+    public function __construct()
+    {
+        $this->cache = [];
+    }
+
+    /**
+     * Purge an item from the cache immediately.
+     *
+     * @param string   $id
      * @param callable $next
+     *
      * @return mixed
      */
     public function delete($id, $next)
     {
-        // TODO: Implement destroy() method.
+        unset($this->cache[$id]);
+        return $next($id);
     }
 
     /**
-     * @param int $maxlifetime
+     * Update the internal cache by filtering out any items that are no longer valid.
+     *
+     * @param int      $maxlifetime
      * @param callable $next
+     *
      * @return mixed
      */
     public function clean($maxlifetime, $next)
     {
-        // TODO: Implement gc() method.
+        $this->cache = array_filter($this->cache, function($item) use ($maxlifetime) {
+            /** @var MemoryItem $item */
+            return $item->is_valid($maxlifetime);
+        });
+
+        return $next($maxlifetime);
     }
 
     /**
-     * @param string $path
-     * @param string $name
+     * Pass things through to the next middleare. This function is a no-op.
+     *
+     * @param string   $path
+     * @param string   $name
      * @param callable $next
+     *
      * @return mixed
      */
     public function create($path, $name, $next)
     {
-        // TODO: Implement open() method.
+        return $next($path, $name);
     }
 
     /**
+     * Grab the item from the cache if it exists, otherwise delve deeper
+     * into the stack and retrieve from another underlying middlware.
+     *
      * @param string $id
      * @param callable $next
-     * @return mixed
+     *
+     * @return string
      */
     public function read($id, $next)
     {
-        // TODO: Implement read() method.
+        $data = $this->_read($id);
+        if ( false === $data ) {
+            $data = $next($id);
+            if (false !== $data) {
+                $item = new MemoryItem($data);
+                $this->cache[$id] = $item;
+            }
+        }
+
+        return $data;
     }
 
     /**
-     * @param string $id
-     * @param string $data
+     * Store the item in the cache and then pass the data, unchanged, down
+     * the middleware stack.
+     *
+     * @param string   $id
+     * @param string   $data
      * @param callable $next
+     *
      * @return mixed
      */
     public function write($id, $data, $next)
     {
-        // TODO: Implement write() method.
+        $item = new MemoryItem($data);
+        $this->cache[$id] = $item;
+
+        return $next($id, $data);
     }
 }
