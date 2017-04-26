@@ -59,32 +59,32 @@ class Manager implements \SessionHandlerInterface {
         }
 
         // DELETE
-        $next_delete = $this->delete_stack->top();
-        $this->delete_stack[] = function($session_id) use ($handler, $next_delete) {
+        $next_delete = $this->stacks['delete']->top();
+        $this->stacks['delete'][] = function($session_id) use ($handler, $next_delete) {
             return call_user_func(array( $handler, 'delete'), $session_id, $next_delete);
         };
 
         // CLEAN
-        $next_clean = $this->clean_stack->top();
-        $this->clean_stack[] = function($lifetime) use ($handler, $next_clean) {
+        $next_clean = $this->stacks['clean']->top();
+        $this->stacks['clean'][] = function($lifetime) use ($handler, $next_clean) {
             return call_user_func(array( $handler, 'clean'), $lifetime, $next_clean);
         };
 
         // CREATE
-        $next_create = $this->create_stack->top();
-        $this->create_stack[] = function($path, $name) use ($handler, $next_create) {
+        $next_create = $this->stacks['create']->top();
+        $this->stacks['create'][] = function($path, $name) use ($handler, $next_create) {
             return call_user_func(array( $handler, 'create'), $path, $name, $next_create);
         };
 
         // READ
-        $next_read = $this->read_stack->top();
-        $this->read_stack[] = function($session_id) use ($handler, $next_read) {
+        $next_read = $this->stacks['read']->top();
+        $this->stacks['read'][] = function($session_id) use ($handler, $next_read) {
             return call_user_func(array( $handler, 'read'), $session_id, $next_read);
         };
 
         // WRITE
-        $next_write = $this->write_stack->top();
-        $this->write_stack[] = function($session_id, $session_data) use ($handler, $next_write) {
+        $next_write = $this->stacks['write']->top();
+        $this->stacks['write'][] = function($session_id, $session_data) use ($handler, $next_write) {
             return call_user_func(array( $handler, 'write'), $session_id, $session_data, $next_write);
         };
 
@@ -151,11 +151,11 @@ class Manager implements \SessionHandlerInterface {
 
         while (count($this->handlers) > 0) {
             array_pop($this->handlers);
-            $this->delete_stack->pop();
-            $this->clean_stack->pop();
-            $this->create_stack->pop();
-            $this->read_stack->pop();
-            $this->write_stack->pop();
+            $this->stacks['delete']->pop();
+            $this->stacks['clean']->pop();
+            $this->stacks['create']->pop();
+            $this->stacks['read']->pop();
+            $this->stacks['write']->pop();
         }
 
         $this->handlerLock = false;
