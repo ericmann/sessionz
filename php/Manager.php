@@ -102,8 +102,8 @@ class Manager implements \SessionHandlerInterface {
             throw new \RuntimeException('Handler stacks can only be seeded once.');
         }
         $this->stacks = [];
-        $this->handlers = [$base];
         $base = new BaseHandler();
+        $this->handlers = [$base];
 
         $this->stacks['delete'] = new \SplStack();
         $this->stacks['clean'] = new \SplStack();
