@@ -14,6 +14,7 @@
 namespace EAMann\Sessionz\Handlers;
 
 use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Key;
 
 /**
  * Extend the standard "noop" handler so that normal functionality for managing
@@ -27,7 +28,7 @@ class EncryptionHandler extends NoopHandler  {
 
     public function __construct( $key )
     {
-        $this->key = $key;
+        $this->key = Key::loadFromAsciiSafeString($key);
     }
 
 	/**

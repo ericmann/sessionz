@@ -60,6 +60,13 @@ The default session handler merely exposes PHP's default session implementation 
 
 Sessions stored on disk (the default implementation) or in a separate storage system (Memcache, MySQL, or similar) should be encrypted _at rest_. This handler will automatically encrypt any information passing through it on write and decrypt data on read. It does not store data on its own.
 
+This handler requires a symmetric encryption key when it's instantiated. This key should be an ASCII-safe string, 32 bytes in length. You can easily use [Defuse PHP Encryption](https://github.com/defuse/php-encryption) (a dependency of this library) to generate a new key:
+
+```php
+$rawKey = Defuse\Crypto\Key::createNewRandomKey();
+$key = $rawKey->saveToAsciiSafeString();
+```
+
 ### `MemoryHandler`
 
 If the final storage system presented to the session manager is remote, reads and writes can take a non-trivial amount of time. Storing session data in memory helps to make the application more performant. Reads will stop at this layer in the stack if the session is found (i.e. the cache is hot) but will flow to the next layer if no session exists. When a session is found in a subsequent layer, this handler will update its cache to make the data available upon the next lookup.
@@ -75,8 +82,6 @@ The `NoopHandler` class is provided for you to build additional middleware atop 
 ## Credits
 
 The middleware implementation is inspired heavily by the request middleware stack presented by [the Slim Framework](https://www.slimframework.com/).
-
-The default encryption implementation featured by the `EncryptionHandler` is borrowed from an example in [the PHP documentation](http://php.net/manual/en/class.sessionhandler.php) on session management.
 
 [travis-image]: https://travis-ci.org/ericmann/sessionz.svg?branch=master
 [travis-url]: https://travis-ci.org/ericmann/sessionz
