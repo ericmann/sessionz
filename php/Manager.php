@@ -130,7 +130,9 @@ class Manager implements \SessionHandlerInterface {
         $manager = self::$manager = new self();
         $manager->seedHandlerStack();
 
-        session_set_save_handler($manager);
+        if( ! headers_sent() ){
+            session_set_save_handler($manager);
+        }
 
         return $manager;
     }
