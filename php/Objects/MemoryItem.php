@@ -65,8 +65,8 @@ class MemoryItem {
     /**
      * Test whether an item is still valid
      *
-     * @param int [$lifetime]
-     * @param int [$now]
+     * @param int $lifetime
+     * @param int $now
      *
      * @return bool
      */
