@@ -1,4 +1,4 @@
-# PHP Sessionz [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+# PHP Sessionz [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![CI](https://github.com/ericmann/sessionz/actions/workflows/ci.yml/badge.svg)](https://github.com/ericmann/sessionz/actions/workflows/ci.yml)
 
 Sessionz is a PHP library for smarter session management in modular applications.
 
