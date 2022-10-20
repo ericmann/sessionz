@@ -6,7 +6,7 @@ Sessionz is a PHP library for smarter session management in modular applications
 
 Use [Composer](https://getcomposer.org/) to add `ericmann/sessionz` to your project. Then, after loading all of your dependencies, initialize the core session manager and add the handlers you need to your stack.
 
-```
+```php
 require __DIR__ . '/vendor/autoload.php';
 
 EAMann\Sessionz\Manager::initialize()
