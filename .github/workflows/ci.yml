@@ -24,7 +24,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, openssl, sodium
-          coverage: xdebug
+          coverage: none
           tools: composer:v2
 
       - name: Validate composer.json and composer.lock
@@ -41,14 +41,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run PHPUnit
-        run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-
-      - name: Upload coverage to Coveralls
-        if: matrix.php == '8.3'
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: vendor/bin/php-coveralls -v
-        continue-on-error: true
+        run: vendor/bin/phpunit
 
   static-analysis:
     name: PHPStan

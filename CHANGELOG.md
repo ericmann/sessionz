@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.5.1 - 2026-04-14
+### Changed
+- Rewrote `README.md`: dropped dead Travis and Coveralls badges, documented the supported PHP 7.4–8.5 matrix, added Installation / Development / Contributing / License sections, and fixed a missing semicolon in the Quick Start example
+- Dropped `php-coveralls/php-coveralls` dev dependency and the Coveralls upload step from CI (we aren't actually publishing coverage anywhere)
+- Switched CI `coverage` setup to `none` since we no longer collect clover output
+
 ## 0.5.0 - 2026-04-14
 ### Changed
 - Bumped minimum PHP version to 7.4
