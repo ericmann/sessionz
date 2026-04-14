@@ -147,6 +147,7 @@ class Manager implements \SessionHandlerInterface {
      *
      * @return true
      */
+    #[\ReturnTypeWillChange]
     public function close()
     {
         $this->handlerLock = true;
@@ -172,6 +173,7 @@ class Manager implements \SessionHandlerInterface {
      *
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function destroy($session_id)
     {
         if (is_null($this->handlers)) {
@@ -194,6 +196,7 @@ class Manager implements \SessionHandlerInterface {
      *
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function gc($maxlifetime)
     {
         if (is_null($this->handlers)) {
@@ -216,6 +219,7 @@ class Manager implements \SessionHandlerInterface {
      *
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function open($save_path, $name)
     {
         if (is_null($this->handlers)) {
@@ -237,6 +241,7 @@ class Manager implements \SessionHandlerInterface {
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function read($session_id)
     {
         if (is_null($this->handlers)) {
@@ -259,6 +264,7 @@ class Manager implements \SessionHandlerInterface {
      *
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function write($session_id, $session_data)
     {
         if (is_null($this->handlers)) {

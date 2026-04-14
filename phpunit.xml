@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/5.6/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          backupGlobals="false"
          beStrictAboutCoversAnnotation="true"
@@ -8,15 +8,18 @@
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true">
-    <testsuite>
-        <directory suffix="Test.php">test/phpunit</directory>
-    </testsuite>
+    <testsuites>
+        <testsuite name="sessionz">
+            <directory suffix="Test.php">test/phpunit</directory>
+        </testsuite>
+    </testsuites>
 
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+    <coverage processUncoveredFiles="true">
+        <include>
             <directory suffix=".php">php</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </coverage>
+
     <php>
         <ini name="error_reporting" value="32767" />
         <ini name="display_errors" value="1" />

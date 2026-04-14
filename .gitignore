@@ -1,2 +1,5 @@
 /vendor/
-composer.lock
+/build/
+.phpunit.result.cache
+.phpunit.cache/
+.claude/settings.local.json
