@@ -61,14 +61,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          tools: composer:v2
+          tools: composer:v2, phpstan:1.12
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: PHPStan Static Analysis
-        uses: php-actions/phpstan@v3
-        with:
-          path: php/
-          php_version: 8.3
-          level: 2
+        run: phpstan analyse php/ --level=2 --no-progress -a vendor/autoload.php
